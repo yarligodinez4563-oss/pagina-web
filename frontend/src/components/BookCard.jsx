@@ -3,6 +3,13 @@ import { Link } from 'react-router-dom';
 import { addFavorite, removeFavorite, checkFavorite } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
+const API_URL = import.meta.env.VITE_API_URL || 'https://pagina-web-sp9h.onrender.com';
+
+function getFileUrl(filePath) {
+  if (!filePath) return null;
+  return filePath.startsWith('http') ? filePath : `${API_URL}${filePath.startsWith('/') ? '' : '/'}${filePath}`;
+}
+
 function BookCard({ book }) {
   const { showToast } = useAuth();
   const [isFavorite, setIsFavorite] = useState(false);
@@ -35,7 +42,7 @@ function BookCard({ book }) {
     <Link to={`/book/${book.id}`} className="book-card fade-in">
       <div className="book-cover">
         {book.image ? (
-          <img src={book.image.startsWith('/') ? book.image : `/uploads/covers/${book.image}`} alt={book.title} />
+          <img src={getFileUrl(book.image)} alt={book.title} />
         ) : (
           <div className="book-cover-placeholder">📖</div>
         )}

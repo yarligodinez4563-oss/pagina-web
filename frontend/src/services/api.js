@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL || 'https://pagina-web-sp9h.onrender.com';
+
 const api = axios.create({
-  baseURL: 'https://pagina-web-sp9h.onrender.com/api',
+  baseURL: `${API_URL}/api`,
   headers: {
     'Content-Type': 'application/json'
   }

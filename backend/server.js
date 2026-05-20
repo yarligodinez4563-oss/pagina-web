@@ -11,23 +11,41 @@ const favoriteRoutes = require('./routes/favorites');
 
 const app = express();
 
-// Middleware
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'https://pagina-web-khaki-rho.vercel.app',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: 'https://pagina-web-khaki-rho.vercel.app',
-  credentials: true
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, true);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  maxAge: 86400
 }));
+
+// Manejar preflight OPTIONS explícitamente
+app.options('*', cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Crear directorios de uploads si no existen
-const uploadsDirs = [
+// Crear directorios de uploads y DB si no existen
+const dataDirs = [
   path.join(__dirname, 'uploads', 'covers'),
   path.join(__dirname, 'uploads', 'books'),
   path.join(__dirname, 'database')
 ];
 
-uploadsDirs.forEach(dir => {
+dataDirs.forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }

@@ -3,6 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getBook, addFavorite, removeFavorite, checkFavorite } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
+const API_URL = import.meta.env.VITE_API_URL || 'https://pagina-web-sp9h.onrender.com';
+
+function getFileUrl(filePath) {
+  if (!filePath) return null;
+  return filePath.startsWith('http') ? filePath : `${API_URL}${filePath.startsWith('/') ? '' : '/'}${filePath}`;
+}
+
 function BookDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -76,7 +83,7 @@ function BookDetail() {
         <div className="book-detail-header">
           <div className="book-detail-cover">
             {book.image ? (
-              <img src={book.image.startsWith('/') ? book.image : `/uploads/covers/${book.image}`} alt={book.title} />
+              <img src={getFileUrl(book.image)} alt={book.title} />
             ) : (
               <div className="book-detail-cover-placeholder">📖</div>
             )}
@@ -89,7 +96,7 @@ function BookDetail() {
             <div className="book-detail-actions">
               {book.file_path && (
                 <a
-                  href={book.file_path.startsWith('/') ? book.file_path : `/uploads/books/${book.file_path}`}
+                  href={getFileUrl(book.file_path)}
                   className="btn btn-success"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -111,7 +118,7 @@ function BookDetail() {
       {book.file_path && (
         <div className="book-detail-body">
           <iframe
-            src={book.file_path.startsWith('/') ? book.file_path : `/uploads/books/${book.file_path}`}
+            src={getFileUrl(book.file_path)}
             style={{
               width: '100%',
               height: '80vh',

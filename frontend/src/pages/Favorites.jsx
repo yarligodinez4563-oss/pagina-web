@@ -3,6 +3,13 @@ import { Link } from 'react-router-dom';
 import { getFavorites, removeFavorite } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
+const API_URL = import.meta.env.VITE_API_URL || 'https://pagina-web-sp9h.onrender.com';
+
+function getFileUrl(filePath) {
+  if (!filePath) return null;
+  return filePath.startsWith('http') ? filePath : `${API_URL}${filePath.startsWith('/') ? '' : '/'}${filePath}`;
+}
+
 function Favorites() {
   const { showToast } = useAuth();
   const [favorites, setFavorites] = useState([]);
@@ -60,7 +67,7 @@ function Favorites() {
               <Link to={`/book/${book.id}`} style={{ display: 'block' }}>
                 <div className="book-cover">
                   {book.image ? (
-                    <img src={book.image.startsWith('/') ? book.image : `/uploads/covers/${book.image}`} alt={book.title} />
+                    <img src={getFileUrl(book.image)} alt={book.title} />
                   ) : (
                     <div className="book-cover-placeholder">📖</div>
                   )}
