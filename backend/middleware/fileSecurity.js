@@ -71,7 +71,7 @@ function sanitizeFilename(filename) {
 }
 
 // Escanear archivo en busca de malware
-function scanFileForMalware(filepath) {
+function scanFileForMalware(filepath, scanGroups = null) {
   const stats = fs.statSync(filepath);
   if (stats.size === 0) {
     return { safe: false, reason: 'El archivo está vacío.' };
@@ -90,8 +90,12 @@ function scanFileForMalware(filepath) {
   fs.readSync(fd, endBuffer, 0, Math.min(bufferSize, stats.size - endPos), endPos);
   fs.closeSync(fd);
 
-  // Buscar patrones maliciosos
-  for (const [patternName, patterns] of Object.entries(MALWARE_PATTERNS)) {
+  // Si se especifican grupos, solo escanear esos
+  const groupsToScan = scanGroups || Object.keys(MALWARE_PATTERNS);
+
+  for (const patternName of groupsToScan) {
+    const patterns = MALWARE_PATTERNS[patternName];
+    if (!patterns) continue;
     for (const pattern of patterns) {
       if (startBuffer.includes(pattern) || endBuffer.includes(pattern)) {
         return { safe: false, reason: `Posible código malicioso detectado (${patternName}).` };
@@ -147,8 +151,8 @@ function validateBookFile(filepath, mimetype) {
     return { valid: false, error: 'La firma del archivo no coincide con el tipo esperado.' };
   }
 
-  // Escanear malware
-  const scan = scanFileForMalware(filepath);
+  // Escanear solo patrones de scripts (no patrones binarios, dan falsos positivos en PDFs)
+  const scan = scanFileForMalware(filepath, ['phpShell', 'htmlInImage']);
   if (!scan.safe) {
     return { valid: false, error: scan.reason };
   }
